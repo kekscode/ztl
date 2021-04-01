@@ -47,16 +47,14 @@ func main() {
 					return
 				}
 
-				// General logging of all modified files:
+				// General logging of all modified files, good for debug logging:
 				//log.Printf("event.Op: %s, event.Name: %s", event.Op, event.Name)
 
+				// Use file name w/o extension as markdown head on file creation
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Create == fsnotify.Create { // CREATE
-					log.Printf("Hello from Create: %s", event.Op)
-					// Use filename as heading (but strip any extension like .md or else)
 					head := fmt.Sprintf("# %s", strings.Split(event.Name, ".")[0])
 
 					// Save file content to memory
-					log.Printf("Reading file in 62")
 					file, err := os.ReadFile(event.Name)
 					failOnError(err)
 
@@ -65,7 +63,6 @@ func main() {
 					lines[0] = head
 
 					output := strings.Join(lines, "\n")
-					log.Printf("Writing file in 71")
 					err = os.WriteFile(event.Name, []byte(output), 0644)
 					failOnError(err)
 
@@ -74,12 +71,10 @@ func main() {
 					log.Printf("Added markdown head \"%s\" to file %s", head, abs)
 				}
 
+				// Check if zettel file first line is modified and sync file name accordingly
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
-					// Check if zettel file first line is modified and correct filename
-					log.Printf("Hello from Write: %s", event.Op)
 
 					// Save file content to memory
-					log.Printf("Reading file in 121")
 					file, err := os.ReadFile(event.Name) // SOMETIMES EMPTY??
 					failOnError(err)
 
@@ -91,15 +86,14 @@ func main() {
 
 					// Filename and first line of markdown are the same
 					if head == fmt.Sprintf("# %s", fileName) {
-						log.Printf("OK: Filename \"%s\" and markdown head \"%s\" are in sync", fileName, head)
+						log.Printf("File name \"%s\" and markdown head \"%s\" are in sync. No need to sync.", fileName, head)
 					}
 
-					// Adjust filename according to heading
+					// Adjust file name according to head
 					if head != fmt.Sprintf("# %s", fileName) {
 
-						log.Printf("NOK: Filename \"%s\" and markdown head \"%s\" are not in sync", fileName, head)
+						log.Printf("File name \"%s\" and markdown head \"%s\" are not in sync. Syncing.", fileName, head)
 
-						log.Printf("Opening file in 141")
 						file, err := os.ReadFile(event.Name)
 						failOnError(err)
 						watcher.Remove(event.Name)
@@ -107,7 +101,6 @@ func main() {
 						lines := strings.Split(string(file), "\n")
 
 						newFileName := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(lines[0], ""))
-						log.Printf("Renaming file in 149")
 						err = os.Rename(event.Name, newFileName)
 						watcher.Add(newFileName)
 						failOnError(err)
