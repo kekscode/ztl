@@ -75,7 +75,7 @@ func main() {
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
 
 					// Save file content to memory
-					file, err := os.ReadFile(event.Name) // SOMETIMES EMPTY??
+					file, err := os.ReadFile(event.Name)
 					failOnError(err)
 
 					lines := strings.Split(string(file), "\n")
