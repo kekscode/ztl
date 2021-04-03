@@ -32,8 +32,11 @@ func main() {
 		panic("Because of platform specifics, only MacOS is supported")
 	}
 
-	zkDir := flag.String("path", ".", "Path to working directory")
+	wDir := flag.String("path", ".", "Path to working directory")
 	flag.Parse()
+
+	zkDir, err := filepath.Abs(*wDir)
+	failOnError(err)
 
 	zettelIDFilenameRegex, _ := regexp.Compile("[0-9]{12}.*\\.md")
 	markdownHeadPrefix, _ := regexp.Compile("^#+\\s+")
@@ -61,8 +64,7 @@ func main() {
 					head := fmt.Sprintf("# %s", strings.Split(event.Name, ".")[0])
 
 					// Save file content to memory
-					f := filepath.Join(*zkDir, event.Name)
-					fileContent, err := os.ReadFile(f)
+					fileContent, err := os.ReadFile(event.Name)
 					failOnError(err)
 
 					lines := strings.Split(string(fileContent), "\n")
@@ -70,13 +72,10 @@ func main() {
 
 					output := strings.Join(lines, "\n")
 
-					newFile := filepath.Join(*zkDir, event.Name)
+					err = os.WriteFile(event.Name, []byte(output), 0644)
 					failOnError(err)
 
-					err = os.WriteFile(newFile, []byte(output), 0644)
-					failOnError(err)
-
-					abs, err := filepath.Abs(newFile)
+					abs, err := filepath.Abs(event.Name)
 					failOnError(err)
 					log.Printf("Added markdown head \"%s\" to file %s", head, abs)
 				}
@@ -85,15 +84,14 @@ func main() {
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
 
 					// Save file content to memory
-					f := filepath.Join(*zkDir, event.Name)
-					fileContent, err := os.ReadFile(f)
+					fileContent, err := os.ReadFile(event.Name)
 					failOnError(err)
 
 					lines := strings.Split(string(fileContent), "\n")
 					head := lines[0]
 
 					// Get file name without extension
-					fileName := strings.Split(f, ".")[0]
+					fileName := strings.Split(event.Name, ".")[0]
 
 					// Filename and first line of markdown are the same
 					if head == fmt.Sprintf("# %s", fileName) {
@@ -108,9 +106,9 @@ func main() {
 						watcher.Remove(event.Name)
 
 						newFile := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(lines[0], ""))
-						newFile = filepath.Join(*zkDir, newFile)
+						newFile = filepath.Join(zkDir, newFile)
 
-						err = os.Rename(f, newFile)
+						err = os.Rename(event.Name, newFile)
 						watcher.Add(newFile)
 						failOnError(err)
 					}
@@ -124,7 +122,7 @@ func main() {
 		}
 	}()
 
-	err = watcher.Add(*zkDir)
+	err = watcher.Add(zkDir)
 	if err != nil {
 		log.Fatal(err)
 	}
