@@ -9,11 +9,13 @@ NAME3=$(gtr -cd '[a-zA-Z0-9]' < /dev/urandom | head -c$n); echo $output
 
 NAME="$NAME1 $NAME2 $NAME3"
 
+TIMEOUT=1
+
 # create proper file
-touch "$DATE $NAME.md" && sleep 5 && \
-echo "# $DATE new markdown header" >"$DATE $NAME.md" && sleep 5 &&\
-cp "$DATE new markdown header.md" "$DATE new markdown header copied.md" && sleep 5 &&\
-mv "$DATE new markdown header copied.md" "$DATE new markdown header renamed.md" && sleep 5 &&\
+touch "$DATE $NAME.md" && sleep $TIMEOUT && \
+echo "# $DATE new markdown header" >"$DATE $NAME.md" && sleep $TIMEOUT &&\
+cp "$DATE new markdown header.md" "$DATE new markdown header copied.md" && sleep $TIMEOUT &&\
+mv "$DATE new markdown header copied.md" "$DATE new markdown header renamed.md" && sleep $TIMEOUT &&\
 rm -f "$DATE new markdown header renamed.md" && \
 rm -f "$DATE new markdown header copied.md" && \
 rm -f "$DATE new markdown header.md"
