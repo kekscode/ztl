@@ -54,14 +54,9 @@ func main() {
 					return
 				}
 
-				// General logging of all modified files, good for debug logging:
-				//log.Printf("event.Op: %s, event.Name: %s", event.Op, event.Name)
-				//e, _ := filepath.Abs(event.Name)
-				//fmt.Printf("%v\n", e)
-
 				// Use file name w/o extension as markdown head on file creation
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Create == fsnotify.Create { // CREATE
-					head := fmt.Sprintf("# %s", strings.Split(event.Name, ".")[0])
+					head := fmt.Sprintf("# %s", strings.Split(filepath.Base(event.Name), ".")[0])
 
 					// Save file content to memory
 					fileContent, err := os.ReadFile(event.Name)
@@ -77,7 +72,7 @@ func main() {
 
 					abs, err := filepath.Abs(event.Name)
 					failOnError(err)
-					log.Printf("Added markdown head \"%s\" to file %s", head, abs)
+					log.Printf("Added markdown head \"%s\" to new file %s", head, abs)
 				}
 
 				// Check if zettel file first line is modified and sync file name accordingly
@@ -90,22 +85,25 @@ func main() {
 					lines := strings.Split(string(fileContent), "\n")
 					head := lines[0]
 
-					// Get file name without extension
-					fileName := strings.Split(event.Name, ".")[0]
+					// Strip file extension
+					filePath := strings.Split(event.Name, ".")[0]
+
+					// Strip leading filesystem path
+					fileName := filepath.Base(filePath)
 
 					// Filename and first line of markdown are the same
 					if head == fmt.Sprintf("# %s", fileName) {
-						log.Printf("File name \"%s\" and markdown head \"%s\" are in sync. No need to sync.", fileName, head)
+						log.Printf("File name \"%s\" and markdown head \"%s\" are consistent.", fileName, head)
 					}
 
 					// Adjust file name according to head
 					if head != fmt.Sprintf("# %s", fileName) {
 
-						log.Printf("File name \"%s\" and markdown head \"%s\" are not in sync. Syncing.", fileName, head)
+						log.Printf("File name \"%s\" and markdown head \"%s\" are not consistent. Adjusting.", fileName, head)
 
 						watcher.Remove(event.Name)
 
-						newFile := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(lines[0], ""))
+						newFile := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(filepath.Base(lines[0]), ""))
 						newFile = filepath.Join(zkDir, newFile)
 
 						err = os.Rename(event.Name, newFile)
