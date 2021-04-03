@@ -17,3 +17,4 @@ mv "$DATE new markdown header copied.md" "$DATE new markdown header renamed.md" 
 rm -f "$DATE new markdown header renamed.md" && \
 rm -f "$DATE new markdown header copied.md" && \
 rm -f "$DATE new markdown header.md"
+
