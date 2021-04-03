@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
+	flag "github.com/spf13/pflag"
 )
 
 func failOnError(err error) {
@@ -19,11 +19,12 @@ func failOnError(err error) {
 	}
 }
 
-// FIXME: When a -path /some/path/ is given, make sure the full path is used when renaming etc. happens (right now the file is created in the servers working directory)
 // TODO: Use proper logging library to differentiate between loglevels easily and maybe color coding
 // TODO: Refactor into generic functions
-// TODO: Validate command: if zettel file is modified and validate all links if no link is broken
+// TODO: Write tests
+// TODO: Validate command: if zettel file is modified and validate all links if no link is broken or head is not consistent with filename
 // TODO: Validate command: Check if zettel file deleted (REMOVE) and mark [[links to file]] as bad + report them
+// TODO: Create tags index with each tag pointing to files with this tag
 // TODO: Use better flag parsing library
 
 func main() {
@@ -38,7 +39,7 @@ func main() {
 	zkDir, err := filepath.Abs(*wDir)
 	failOnError(err)
 
-	zettelIDFilenameRegex, _ := regexp.Compile("[0-9]{12}.*\\.md")
+	zettelIDFilenameRegex, _ := regexp.Compile("[0-9]{12}.*\\.md$")
 	markdownHeadPrefix, _ := regexp.Compile("^#+\\s+")
 
 	watcher, err := fsnotify.NewWatcher()
