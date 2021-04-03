@@ -19,16 +19,20 @@ func failOnError(err error) {
 	}
 }
 
-// TODO:
-// validate command: if zettel file is modified and validate all links if no link is broken
-// validate command: Check if zettel file deleted (REMOVE) and mark [[links to file]] as bad + report them
+// FIXME: When a -path /some/path/ is given, make sure the full path is used when renaming etc. happens (right now the file is created in the servers working directory)
+// TODO: Use proper logging library to differentiate between loglevels easily and maybe color coding
+// TODO: Refactor into generic functions
+// TODO: Validate command: if zettel file is modified and validate all links if no link is broken
+// TODO: Validate command: Check if zettel file deleted (REMOVE) and mark [[links to file]] as bad + report them
+// TODO: Use better flag parsing library
+
 func main() {
 
 	if runtime.GOOS != "darwin" {
 		panic("Because of platform specifics, only MacOS is supported")
 	}
 
-	workDir := flag.String("path", ".", "Path to working directory")
+	zkDir := flag.String("path", ".", "Path to working directory")
 	flag.Parse()
 
 	zettelIDFilenameRegex, _ := regexp.Compile("[0-9]{12}.*\\.md")
@@ -49,24 +53,30 @@ func main() {
 
 				// General logging of all modified files, good for debug logging:
 				//log.Printf("event.Op: %s, event.Name: %s", event.Op, event.Name)
+				//e, _ := filepath.Abs(event.Name)
+				//fmt.Printf("%v\n", e)
 
 				// Use file name w/o extension as markdown head on file creation
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Create == fsnotify.Create { // CREATE
 					head := fmt.Sprintf("# %s", strings.Split(event.Name, ".")[0])
 
 					// Save file content to memory
-					file, err := os.ReadFile(event.Name)
+					f := filepath.Join(*zkDir, event.Name)
+					fileContent, err := os.ReadFile(f)
 					failOnError(err)
 
-					lines := strings.Split(string(file), "\n")
-
+					lines := strings.Split(string(fileContent), "\n")
 					lines[0] = head
 
 					output := strings.Join(lines, "\n")
-					err = os.WriteFile(event.Name, []byte(output), 0644)
+
+					newFile := filepath.Join(*zkDir, event.Name)
 					failOnError(err)
 
-					abs, err := filepath.Abs(event.Name)
+					err = os.WriteFile(newFile, []byte(output), 0644)
+					failOnError(err)
+
+					abs, err := filepath.Abs(newFile)
 					failOnError(err)
 					log.Printf("Added markdown head \"%s\" to file %s", head, abs)
 				}
@@ -75,14 +85,15 @@ func main() {
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
 
 					// Save file content to memory
-					file, err := os.ReadFile(event.Name)
+					f := filepath.Join(*zkDir, event.Name)
+					fileContent, err := os.ReadFile(f)
 					failOnError(err)
 
-					lines := strings.Split(string(file), "\n")
+					lines := strings.Split(string(fileContent), "\n")
 					head := lines[0]
 
 					// Get file name without extension
-					fileName := strings.Split(event.Name, ".")[0]
+					fileName := strings.Split(f, ".")[0]
 
 					// Filename and first line of markdown are the same
 					if head == fmt.Sprintf("# %s", fileName) {
@@ -94,15 +105,13 @@ func main() {
 
 						log.Printf("File name \"%s\" and markdown head \"%s\" are not in sync. Syncing.", fileName, head)
 
-						file, err := os.ReadFile(event.Name)
-						failOnError(err)
 						watcher.Remove(event.Name)
 
-						lines := strings.Split(string(file), "\n")
+						newFile := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(lines[0], ""))
+						newFile = filepath.Join(*zkDir, newFile)
 
-						newFileName := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(lines[0], ""))
-						err = os.Rename(event.Name, newFileName)
-						watcher.Add(newFileName)
+						err = os.Rename(f, newFile)
+						watcher.Add(newFile)
 						failOnError(err)
 					}
 				}
@@ -115,7 +124,7 @@ func main() {
 		}
 	}()
 
-	err = watcher.Add(*workDir)
+	err = watcher.Add(*zkDir)
 	if err != nil {
 		log.Fatal(err)
 	}
