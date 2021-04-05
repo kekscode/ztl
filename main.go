@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"runtime"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/integrii/flaggy"
 
-	flag "github.com/spf13/pflag"
+	log "github.com/sirupsen/logrus"
 )
 
 // TODO: Refactor into generic functions
@@ -18,7 +18,30 @@ import (
 // TODO: Create tags index with each tag pointing to files with this tag
 //       <https://rosettacode.org/wiki/Inverted_index#Go>
 
+const (
+	version = "0.0.0-unreleased"
+)
+
+var (
+	// Zettelkasten-related pattern
+	zettelIDFilenameRegex, _ = regexp.Compile("[0-9]{12}.*\\.md$")
+	markdownHeadPrefix, _    = regexp.Compile("^#+\\s+")
+
+	// Config related
+	workingDirectory = "."
+	fixIssues        = false
+
+	// Keep subcommands as globals so you can easily check if they were used later on.
+	subcmdServe    *flaggy.Subcommand
+	subcmdValidate *flaggy.Subcommand
+)
+
 func init() {
+	// Only MacOS is tested for the time being
+	if runtime.GOOS != "darwin" {
+		panic("Because of platform specifics, only MacOS is supported")
+	}
+
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 
@@ -26,24 +49,33 @@ func init() {
 	log.SetLevel(log.InfoLevel)
 }
 
-var (
-	zettelIDFilenameRegex, _ = regexp.Compile("[0-9]{12}.*\\.md$")
-	markdownHeadPrefix, _    = regexp.Compile("^#+\\s+")
-)
-
 func main() {
+	// CLI
+	flaggy.SetName("ztl")
+	flaggy.SetDescription("A little server and CLI tool to keep a zettelkasten in shape.")
+	flaggy.SetVersion(version)
 
-	if runtime.GOOS != "darwin" {
-		panic("Because of platform specifics, only MacOS is supported")
-	}
+	subcmdValidate := flaggy.NewSubcommand("validate")
+	subcmdValidate.Description = "Validate and (optionally) fix issues with your zettelkasten."
+	subcmdValidate.String(&workingDirectory, "w", "work-dir", "Working directory with your zettelkasten files.")
+	subcmdValidate.Bool(&fixIssues, "f", "fix-issues", "Validates and fixes issues in one step.")
+	flaggy.AttachSubcommand(subcmdValidate, 1)
 
-	wDir := flag.String("path", ".", "Path to working directory")
-	flag.Parse()
+	subcmdServe := flaggy.NewSubcommand("serve")
+	subcmdServe.Description = "Start a server which reacts to file changes in your zettelkasten."
+	subcmdServe.String(&workingDirectory, "w", "work-dir", "Working directory with your zettelkasten files.")
+	flaggy.AttachSubcommand(subcmdServe, 1)
 
-	zkDir, err := filepath.Abs(*wDir)
+	flaggy.Parse()
+
+	zkDir, err := filepath.Abs(workingDirectory)
 	failOnError(err)
 
-	Serve(zkDir)
+	if subcmdServe.Used {
+		Serve(zkDir) // blocks
+	}
+
+	flaggy.ShowHelpAndExit("Please provide a subcommand")
 }
 
 func failOnError(err error) {

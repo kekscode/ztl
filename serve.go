@@ -18,6 +18,7 @@ func Serve(dir string) {
 
 	done := make(chan struct{})
 	go func() {
+		log.Println("Starting ztl server...")
 		for {
 			select {
 			case event, ok := <-watcher.Events:
