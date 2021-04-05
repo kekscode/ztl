@@ -12,9 +12,11 @@ import (
 
 // TODO: Refactor into generic functions
 // TODO: Write tests
+// TODO: Use flaggy https://github.com/integrii/flaggy for subcommands
 // TODO: Validate command: if zettel file is modified and validate all links if no link is broken or head is not consistent with filename
 // TODO: Validate command: Check if zettel file deleted (REMOVE) and mark [[links to file]] as bad + report them
 // TODO: Create tags index with each tag pointing to files with this tag
+//       <https://rosettacode.org/wiki/Inverted_index#Go>
 
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
