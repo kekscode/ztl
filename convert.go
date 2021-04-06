@@ -33,7 +33,6 @@ func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
 func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 	// Save file content to memory
 	fileContent, err := os.ReadFile(fn)
-
 	failOnError(err)
 
 	lines := strings.Split(string(fileContent), "\n")
@@ -46,7 +45,7 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 	fileName := filepath.Base(path)
 
 	// Get CWD
-	cwd, err := os.Getwd()
+	cwd := filepath.Dir(fn)
 	failOnError(err)
 
 	// Adjust file name according to head
@@ -64,7 +63,7 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 
 	// Filename and first line of markdown are the same
 	if head == fmt.Sprintf("# %s", fileName) {
-		log.Printf("File name \"%s\" and markdown head \"%s\" are consistent.", filepath.Join(cwd, fileName), head)
+		log.Printf("File name \"%s\" and markdown head \"%s\" are consistent.", fn, head)
 	}
 
 	return head, fileName
