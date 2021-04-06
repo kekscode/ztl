@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// FIXME: Get rid of all log messages inside convert.go functions and move them to watch.go watcher code
 // FIXME: On MacOS (case-insensitive filesystem) a rename from `202104061547 file.md` to `202104061547 File.md` creates an endless loop in serve.go
 //        The same happens when the markdown title is adjusted from `# 202104061547 file` to `# 202104061547 File`
 //        A "breaker" is needed here in order to avoid the endless loop.

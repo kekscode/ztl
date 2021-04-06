@@ -29,8 +29,7 @@ func watch(dir string) {
 
 				// Check if zettel file first line is modified and sync file name accordingly
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
-					newHead, newFilePath := syncFileNameByMarkdownHead(event.Name)
-					log.Printf("Renamed file \"%s\" according to new markdown head %s", newFilePath, newHead)
+					_, _ = syncFileNameByMarkdownHead(event.Name)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
