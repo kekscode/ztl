@@ -1,18 +1,36 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func Test_addMarkdownHeadToFile(t *testing.T) {
+
+	os.Mkdir("testdata", 0755)
+	defer os.RemoveAll("testdata")
+	cwd, _ := os.Getwd()
+
 	type args struct {
 		fn string
 	}
+
+	a := args{fn: "testdata/202104061620 This is a new markdown file.md"}
+	os.WriteFile(a.fn, nil, 0644)
+
 	tests := []struct {
 		name         string
 		args         args
 		wantFileHead string
 		wantFilePath string
 	}{
-		// TODO: Add test cases.
+		{
+			"Test if first line in new file contains correct title",
+			a,
+			"# 202104061620 This is a new markdown file",
+			filepath.Join(cwd, "testdata/202104061620 This is a new markdown file.md"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -46,7 +46,7 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 	fileName := filepath.Base(path)
 
 	// Get CWD
-	cwd, err := filepath.Abs(".")
+	cwd, err := os.Getwd()
 	failOnError(err)
 
 	// Adjust file name according to head
