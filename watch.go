@@ -6,7 +6,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-func Serve(dir string) {
+func watch(dir string) {
 	watcher, err := fsnotify.NewWatcher()
 	failOnError(err)
 	defer watcher.Close()

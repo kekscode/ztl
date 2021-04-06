@@ -61,7 +61,7 @@ func main() {
 	subcmdValidate.Bool(&fixIssues, "f", "fix-issues", "Validates and fixes issues in one step.")
 	flaggy.AttachSubcommand(subcmdValidate, 1)
 
-	subcmdServe := flaggy.NewSubcommand("serve")
+	subcmdServe := flaggy.NewSubcommand("watch")
 	subcmdServe.Description = "Start a server which reacts to file changes in your zettelkasten."
 	subcmdServe.String(&workingDirectory, "w", "work-dir", "Working directory with your zettelkasten files.")
 	flaggy.AttachSubcommand(subcmdServe, 1)
@@ -72,7 +72,7 @@ func main() {
 	failOnError(err)
 
 	if subcmdServe.Used {
-		Serve(zkDir) // blocks
+		watch(zkDir) // blocks
 	}
 
 	flaggy.ShowHelpAndExit("Please provide a subcommand")
