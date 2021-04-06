@@ -10,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FIXME: serve --work-dir is defunct
 // TODO: Write tests for refactored functions
 // FIXME: On MacOS (case-insensitive filesystem) a rename from `202104061547 file.md` to `202104061547 File.md` creates an endless loop in serve.go
 //        The same happens when the markdown title is adjusted from `# 202104061547 file` to `# 202104061547 File`
