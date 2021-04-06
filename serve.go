@@ -11,6 +11,27 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
+	head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), ".")[0])
+
+	// Save file content to memory
+	fileContent, err := os.ReadFile(fn)
+	failOnError(err)
+
+	lines := strings.Split(string(fileContent), "\n")
+	lines[0] = head
+
+	output := strings.Join(lines, "\n")
+
+	err = os.WriteFile(fn, []byte(output), 0644)
+	failOnError(err)
+
+	abs, err := filepath.Abs(fn)
+	failOnError(err)
+
+	return head, abs
+}
+
 func Serve(dir string) {
 	watcher, err := fsnotify.NewWatcher()
 	failOnError(err)
@@ -28,22 +49,7 @@ func Serve(dir string) {
 
 				// Use file name w/o extension as markdown head on file creation
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Create == fsnotify.Create { // CREATE
-					head := fmt.Sprintf("# %s", strings.Split(filepath.Base(event.Name), ".")[0])
-
-					// Save file content to memory
-					fileContent, err := os.ReadFile(event.Name)
-					failOnError(err)
-
-					lines := strings.Split(string(fileContent), "\n")
-					lines[0] = head
-
-					output := strings.Join(lines, "\n")
-
-					err = os.WriteFile(event.Name, []byte(output), 0644)
-					failOnError(err)
-
-					abs, err := filepath.Abs(event.Name)
-					failOnError(err)
+					head, abs := addMarkdownHeadToFile(event.Name)
 					log.Printf("Added markdown head \"%s\" to new file %s", head, abs)
 				}
 
@@ -52,6 +58,7 @@ func Serve(dir string) {
 
 					// Save file content to memory
 					fileContent, err := os.ReadFile(event.Name)
+
 					failOnError(err)
 
 					lines := strings.Split(string(fileContent), "\n")
