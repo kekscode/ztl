@@ -25,11 +25,12 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 		wantFileHead string
 		wantFilePath string
 	}{
+		// Test cases
 		{
-			"Test if first line in new file contains correct title",
-			a,
-			"# 202104061620 This is a new markdown file",
-			filepath.Join(cwd, "testdata/202104061620 This is a new markdown file.md"),
+			name:         "Test if first line in new file contains correct title",
+			args:         a,
+			wantFileHead: "# 202104061620 This is a new markdown file",
+			wantFilePath: filepath.Join(cwd, "testdata/202104061620 This is a new markdown file.md"),
 		},
 	}
 	for _, tt := range tests {
@@ -46,16 +47,30 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 }
 
 func Test_syncFileNameByMarkdownHead(t *testing.T) {
+
+	os.Mkdir("testdata", 0755)
+	defer os.RemoveAll("testdata")
+
 	type args struct {
 		fn string
 	}
+
+	a := args{fn: "testdata/202104061620 This is a new markdown file.md"}
+	os.WriteFile(a.fn, []byte("# 202104061620 This is a renamed markdown head"), 0644)
+
 	tests := []struct {
 		name         string
 		args         args
 		wantFileHead string
 		wantFilePath string
 	}{
-		// TODO: Add test cases.
+		// Test cases
+		{
+			name:         "Test if file gets renamed according to markdown header",
+			args:         a,
+			wantFileHead: "# 202104061620 This is a renamed markdown head",
+			wantFilePath: filepath.Join(filepath.Base("."), "testdata/202104061620 This is a renamed markdown head.md"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
