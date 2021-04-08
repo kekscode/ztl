@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
@@ -58,11 +56,6 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 		err = os.Rename(fn, newFileName)
 		failOnError(err)
 		return head, newFileName
-	}
-
-	// Filename and first line of markdown are the same
-	if head == fmt.Sprintf("# %s", fileName) {
-		log.Printf("File name \"%s\" and markdown head \"%s\" are consistent.", fn, head)
 	}
 
 	return head, fileName
