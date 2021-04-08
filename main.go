@@ -12,7 +12,6 @@ import (
 
 // FIXME: Problems with "." in filename (apparently?)
 //        See: INFO[2021-04-07T15:37:17+02:00] File name "202104071536 Prof" and markdown head "# 202104071536 Prof. Dr. Siegbert Rossol" are not consistent. Adjusting.
-// FIXME: Get rid of all log messages inside convert.go functions and move them to watch.go watcher code
 // FIXME: On MacOS (case-insensitive filesystem) a rename from `202104061547 file.md` to `202104061547 File.md` creates an endless loop in serve.go
 //        The same happens when the markdown title is adjusted from `# 202104061547 file` to `# 202104061547 File`
 //        A "breaker" is needed here in order to avoid the endless loop.

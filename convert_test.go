@@ -33,7 +33,7 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 			name:         "Test for issues with dots in the first line",
 			args:         args{fn: "testdata/202104061621 Prof. med. Dr. Some Human.md"},
 			wantFileHead: "# 202104061621 Prof. med. Dr. Some Human",
-			wantFilePath: filepath.Join(cwd, "testdata/202104061621 Prof. med. Dr. Some Human"),
+			wantFilePath: filepath.Join(cwd, "testdata/202104061621 Prof. med. Dr. Some Human.md"),
 		},
 	}
 	for _, tt := range tests {
