@@ -16,9 +16,6 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 		fn string
 	}
 
-	a := args{fn: "testdata/202104061620 This is a new markdown file.md"}
-	os.WriteFile(a.fn, nil, 0644)
-
 	tests := []struct {
 		name         string
 		args         args
@@ -28,14 +25,23 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 		// Test cases
 		{
 			name:         "Test if first line in new file contains correct title",
-			args:         a,
+			args:         args{fn: "testdata/202104061620 This is a new markdown file.md"},
 			wantFileHead: "# 202104061620 This is a new markdown file",
 			wantFilePath: filepath.Join(cwd, "testdata/202104061620 This is a new markdown file.md"),
+		},
+		{
+			name:         "Test for issues with dots in the first line",
+			args:         args{fn: "testdata/202104061621 Prof. med. Dr. Some Human"},
+			wantFileHead: "# 202104061621 Prof. med. Dr. Some Human",
+			wantFilePath: filepath.Join(cwd, "testdata/202104061621 Prof. med. Dr. Some Human"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
+			os.WriteFile(tt.args.fn, nil, 0644)
 			gotFileHead, gotFilePath := addMarkdownHeadToFile(tt.args.fn)
+
 			if gotFileHead != tt.wantFileHead {
 				t.Errorf("addMarkdownHeadToFile() gotFileHead = %v, want %v", gotFileHead, tt.wantFileHead)
 			}
