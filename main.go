@@ -61,8 +61,8 @@ func main() {
 	subcmdValidate := flaggy.NewSubcommand("validate")
 	subcmdValidate.Description = "Validate and (optionally) fix issues with your zettelkasten."
 	subcmdValidate.String(&workingDirectory, "w", "work-dir", "Working directory with your zettelkasten files.")
-	subcmdValidate.Bool(&fixIssues, "f", "fix-issues", "Validates and fixes issues in one step.")
-	flaggy.AttachSubcommand(subcmdValidate, 1)
+	subcmdValidate.Bool(&fixIssues, "f", "fix", "Validates and fixes issues in one step.")
+	//flaggy.AttachSubcommand(subcmdValidate, 1) not implemented yet
 
 	subcmdServe := flaggy.NewSubcommand("watch")
 	subcmdServe.Description = "Start a server which reacts to file changes in your zettelkasten."
