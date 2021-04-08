@@ -10,13 +10,14 @@ import (
 )
 
 func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
-	head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), ".")[0])
-
 	// Save file content to memory
 	fileContent, err := os.ReadFile(fn)
 	failOnError(err)
 
 	lines := strings.Split(string(fileContent), "\n")
+
+	//head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), ".")[0])
+	head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), filepath.Ext(fn))[0])
 	lines[0] = head
 
 	output := strings.Join(lines, "\n")
@@ -39,7 +40,7 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 	head := lines[0]
 
 	// Strip file extension
-	path := strings.Split(fn, ".")[0]
+	path := strings.Split(fn, filepath.Ext(fn))[0]
 
 	// Strip leading filesystem path
 	fileName := filepath.Base(path)
@@ -50,8 +51,6 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 
 	// Adjust file name according to head
 	if head != fmt.Sprintf("# %s", fileName) {
-
-		log.Printf("File name \"%s\" and markdown head \"%s\" are not consistent. Adjusting.", fileName, head)
 
 		newFileName := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(filepath.Base(lines[0]), ""))
 		newFileName = filepath.Join(cwd, newFileName)

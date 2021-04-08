@@ -31,7 +31,7 @@ func Test_addMarkdownHeadToFile(t *testing.T) {
 		},
 		{
 			name:         "Test for issues with dots in the first line",
-			args:         args{fn: "testdata/202104061621 Prof. med. Dr. Some Human"},
+			args:         args{fn: "testdata/202104061621 Prof. med. Dr. Some Human.md"},
 			wantFileHead: "# 202104061621 Prof. med. Dr. Some Human",
 			wantFilePath: filepath.Join(cwd, "testdata/202104061621 Prof. med. Dr. Some Human"),
 		},
@@ -61,9 +61,6 @@ func Test_syncFileNameByMarkdownHead(t *testing.T) {
 		fn string
 	}
 
-	a := args{fn: "testdata/202104061620 This is a new markdown file.md"}
-	os.WriteFile(a.fn, []byte("# 202104061620 This is a renamed markdown head"), 0644)
-
 	tests := []struct {
 		name         string
 		args         args
@@ -73,14 +70,17 @@ func Test_syncFileNameByMarkdownHead(t *testing.T) {
 		// Test cases
 		{
 			name:         "Test if file gets renamed according to markdown header",
-			args:         a,
+			args:         args{fn: "testdata/202104061620 This is a new markdown file.md"},
 			wantFileHead: "# 202104061620 This is a renamed markdown head",
 			wantFilePath: filepath.Join(filepath.Base("."), "testdata/202104061620 This is a renamed markdown head.md"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
+			os.WriteFile(tt.args.fn, []byte("# 202104061620 This is a renamed markdown head"), 0644)
 			gotFileHead, gotFilePath := syncFileNameByMarkdownHead(tt.args.fn)
+
 			if gotFileHead != tt.wantFileHead {
 				t.Errorf("syncFileNameByMarkdownHead() gotFileHead = %v, want %v", gotFileHead, tt.wantFileHead)
 			}
