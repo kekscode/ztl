@@ -16,7 +16,9 @@ touch "$DATE $NAME.md" && sleep $TIMEOUT && \
 echo "# $DATE new markdown header" >"$DATE $NAME.md" && sleep $TIMEOUT &&\
 cp "$DATE new markdown header.md" "$DATE new markdown header copied.md" && sleep $TIMEOUT &&\
 mv "$DATE new markdown header copied.md" "$DATE new markdown header renamed.md" && sleep $TIMEOUT &&\
+mv "$DATE new markdown header renamed.md" "$DATE new markdown header renamed a.g.ain.md" && sleep $TIMEOUT &&\
 rm -f "$DATE new markdown header renamed.md" && \
+rm -f "$DATE new markdown header renamed a.g.ain.md" && \
 rm -f "$DATE new markdown header copied.md" && \
 rm -f "$DATE new markdown header.md"
 
