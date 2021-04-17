@@ -11,11 +11,19 @@ NAME="$NAME1 $NAME2 $NAME3"
 
 TIMEOUT=1
 
-# create proper file
+# Trailing spaces
 touch "$DATE $NAME.md" && sleep $TIMEOUT && \
 echo "# $DATE new markdown header w. trailing spaces   " >"$DATE $NAME.md" && sleep $TIMEOUT &&\
 rm -f "$DATE new markdown header w. trailing spaces   .md" && \
 
+# Trailing spaces
+touch "$DATE $NAME.md" && sleep $TIMEOUT && \
+echo "# $DATE new markdown header all lower case" >"$DATE $NAME.md" && sleep $TIMEOUT &&\
+mv "$DATE new markdown header all lower case.md" "$DATE NEW MARKDOWN HEADER ALL UPPER CASE.md" && sleep $TIMEOUT &&\
+mv "$DATE NEW MARKDOWN HEADER ALL UPPER CASE.md" "$DATE new markdown header all lower case.md" && sleep $TIMEOUT &&\
+rm -f "$DATE new markdown header all lower case.md" && sleep $TIMEOUT &&\
+
+# Workflow tests
 touch "$DATE $NAME.md" && sleep $TIMEOUT && \
 echo "# $DATE new markdown header" >"$DATE $NAME.md" && sleep $TIMEOUT &&\
 cp "$DATE new markdown header.md" "$DATE new markdown header copied.md" && sleep $TIMEOUT &&\
@@ -25,4 +33,3 @@ rm -f "$DATE new markdown header renamed.md" && \
 rm -f "$DATE new markdown header renamed a.g.ain.md" && \
 rm -f "$DATE new markdown header copied.md" && \
 rm -f "$DATE new markdown header.md"
-

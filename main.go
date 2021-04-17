@@ -10,11 +10,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FIXME: On MacOS (case-insensitive filesystem) a rename from `202104061547 file.md` to `202104061547 File.md` creates an endless loop in serve.go
-//        The same happens when the markdown title is adjusted from `# 202104061547 file` to `# 202104061547 File`
-//        A "breaker" is needed here in order to avoid the endless loop.
+// TODO: Check the work from https://github.com/Sirupsen/zk for better regexes and other improvements
+// TODO: Improve tests. They are not very good.
 // TODO: Validate command: if zettel file is modified and validate all links if no link is broken or head is not consistent with filename
 // TODO: Validate command: Check if zettel file deleted (REMOVE) and mark [[links to file]] as bad + report them
+// TODO: Convert command: Add a command which changes all wiki links to markdown and vice versa.
 // TODO: Create tags index with each tag pointing to files with this tag
 //       <https://rosettacode.org/wiki/Inverted_index#Go>
 

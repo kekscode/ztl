@@ -23,13 +23,13 @@ func watch(dir string) {
 
 				// Use file name w/o extension as markdown head on file creation
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Create == fsnotify.Create { // CREATE
-					head, abs := addMarkdownHeadToFile(event.Name)
+					head, abs := addMarkdownHeadToFile(event.Name, false)
 					log.Printf("Added markdown head \"%s\" to new file %s", head, abs)
 				}
 
 				// Check if zettel file first line is modified and sync file name accordingly
 				if zettelIDFilenameRegex.MatchString(event.Name) && event.Op&fsnotify.Write == fsnotify.Write { // WRITE
-					mh, fp := syncFileNameByMarkdownHead(event.Name)
+					mh, fp := syncFileNameByMarkdownHead(event.Name, false)
 					log.Printf("File name \"%s\" and its markdown head \"%s\" are consistent", fp, mh)
 				}
 			case err, ok := <-watcher.Errors:

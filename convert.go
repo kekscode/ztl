@@ -7,15 +7,20 @@ import (
 	"strings"
 )
 
-func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
+func addMarkdownHeadToFile(fn string, caseSensitive bool) (fileHead, filePath string) {
 	// Save file content to memory
 	fileContent, err := os.ReadFile(fn)
 	failOnError(err)
 
 	lines := strings.Split(string(fileContent), "\n")
 
-	//head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), ".")[0])
 	head := fmt.Sprintf("# %s", strings.Split(filepath.Base(fn), filepath.Ext(fn))[0])
+
+	// Return early if the only the case has changed and we are not case sensitive
+	if !caseSensitive && (strings.ToLower(lines[0]) == strings.ToLower(head)) {
+		return head, filePath
+	}
+
 	lines[0] = head
 
 	output := strings.Join(lines, "\n")
@@ -29,7 +34,7 @@ func addMarkdownHeadToFile(fn string) (fileHead, filePath string) {
 	return head, abs
 }
 
-func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
+func syncFileNameByMarkdownHead(fn string, caseSensitive bool) (fileHead, filePath string) {
 	// Save file content to memory
 	fileContent, err := os.ReadFile(fn)
 	failOnError(err)
@@ -49,6 +54,10 @@ func syncFileNameByMarkdownHead(fn string) (fileHead, filePath string) {
 
 	// Adjust file name according to head
 	if head != fmt.Sprintf("# %s", fileName) {
+
+		if !caseSensitive && (strings.ToLower(head) == strings.ToLower(fmt.Sprintf("# %s", fileName))) {
+			return head, fileName
+		}
 
 		newFileName := fmt.Sprintf("%s.md", markdownHeadPrefix.ReplaceAllString(filepath.Base(lines[0]), ""))
 		newFileName = filepath.Join(cwd, newFileName)
